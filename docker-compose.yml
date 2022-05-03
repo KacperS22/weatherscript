@@ -1,0 +1,42 @@
+version: "3.7"
+
+services:
+  weathergetter:
+    image: python
+    working_dir: /app
+    command: sh -c "chmod +x ./weather.py; pip3 install -r requirementsgetter.txt; python3 weather.py"
+    volumes:
+      - ./weather.py:/app/weather.py
+      - ./requirementsgetter.txt:/app/requirementsgetter.txt
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+      MYSQL_DB: todos
+
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - weather-script-sql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: todos
+
+  httpserver:
+    image: python
+    working_dir: /app
+    command: sh -c "chmod +x ./httpserver.py; pip3 install -r requirementshttp.txt; python3 httpserver.py"
+    volumes:
+      - ./httpserver.py:/app/httpserver.py
+      - ./requirementshttp.txt:/app/requirementshttp.txt
+    ports:
+      - "8080:8080"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+      MYSQL_DB: todos
+      PYTHONPATH: /app
+
+volumes:
+  weather-script-sql-data:
